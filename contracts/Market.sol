@@ -67,7 +67,7 @@ contract Market is IMarket, Ownable, Pausable {
 
         // Create token for seller
         uint256 tokenId = _token.totalSupply();
-        require(_token.mintWithTokenUri(msg.sender, tokenId, metadataURI));
+        require(_token.mintWithTokenURI(msg.sender, tokenId, metadataURI));
 
         return tokenId;
     }
