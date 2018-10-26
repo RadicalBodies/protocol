@@ -9,8 +9,9 @@ contract Property is ERC721Full, Ownable, IERC721WithCreator {
     mapping (uint256 => address) private creators;
     mapping (address => uint256[]) private tokensByCreator;
 
-    function mint(address to, uint256 tokenId) external onlyOwner returns (bool) {
+    function mintWithTokenUri(address to, uint256 tokenId, string tokenURI) external onlyOwner returns (bool) {
         _mint(to, tokenId);
+        _setTokenURI(tokenId, tokenURI);
 
         creators[tokenId] = to;
         tokensByCreator[to].push(tokenId);
