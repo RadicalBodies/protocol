@@ -4,16 +4,17 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/lifecycle/Pausable.sol";
 
 import "./IMarket.sol";
+import "./Property.sol";
 
 // @title Radical Bodies market.
 contract Market is IMarket, Ownable, Pausable {
-    address private _token;
+    Property private _token;
     uint256 private _taxRate;
     uint256 private _epsilon;
     address private _beneficiary;
 
     constructor(
-        address token,
+        Property token,
         uint256 taxRate,
         uint256 epsilon,
         address beneficiary
@@ -26,7 +27,7 @@ contract Market is IMarket, Ownable, Pausable {
 
     // The ERC721 token.
     function token() external view returns (address) {
-        return _token;
+        return address(_token);
     }
 
     // The tax rate in basis points, 0 to 1000000.
