@@ -2,9 +2,10 @@ pragma solidity ^0.4.20;
 
 import "openzeppelin-solidity/contracts/token/ERC721/ERC721Full.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
-import "./IERC721WithCreator.sol";
 
-contract Property is ERC721Full, Ownable, IERC721WithCreator {
+import "./IProperty.sol";
+
+contract Property is IProperty, ERC721Full, Ownable {
 
     mapping (uint256 => address) private creators;
     mapping (address => uint256[]) private creatorTokens;
