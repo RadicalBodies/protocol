@@ -3,8 +3,11 @@ interface IMarket {
     // The ERC721 token.
     function token() external view returns (address);
 
+    // The advertisement period in seconds.
+    function interval() external view returns (uint256);
+
     // The tax rate in basis points, 0 to 1000000.
-    function taxRate() external view returns (uint256);
+    function taxRatePerInterval() external view returns (uint256);
 
     // The minimum bid/increase. (in ETH)
     function epsilon() external view returns (uint256);
@@ -14,6 +17,12 @@ interface IMarket {
 
     // The beneficiary can retrieve already released funds via this.
     function withdrawAvailableFunds() external payable;
+
+    // The current price of the given token.
+    function priceOf(uint256 tokenId) external view returns (uint256);
+
+    // The period the token is taxed until.
+    function taxedUntil(uint256 tokenId) external view returns (uint256);
 
     // Creates a new token. ERC721 + ERC721Metadata
     // @param metadataURI IPFS URL for all the user details
@@ -30,6 +39,23 @@ interface IMarket {
     // @param numberOfIntervals Number of intervals prepaying the tax for
     // @param reservePrice Price that you are taxed on aka value to you (in ETH)
     // @param adMetadataURI IPFS URL for the ad details (tshirt image, etc.)
+    //
+    // nextPeriodStart = timestamp of next hour
+    // previousPeriodStart = nextPeriodStart - interval
+    //
+    // Calculate costs:
+    //   nextPrice = currentPrice + epsilon
+    //   tax = nextPrice * taxRatePerInterval * numberOfIntervals
+    //   msg.value >= nextPrice + tax
+    //
+    // Refund extra ETH.
+    //
+    // Check if current owner has still some prepaid interval left,
+    // if so they must be refunded:
+    //   refundInterval = (taxedUntil - previousPeriodStart) / interval
+    //   refund = refundInterval * taxRatePerInterval
+    //
+    // taxedUntil = previousPeriodStart + interval * numberOfIntervals
     function buy(
         uint256 tokenId,
         uint256 numberOfIntervals,
@@ -42,4 +68,7 @@ interface IMarket {
     function delist(
         uint256 tokenId
     ) external;
+
+    // Only in the paused state. Disassembles everything, refunds stuff, etc.
+    function teardown() external;
 }
