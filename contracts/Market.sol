@@ -4,17 +4,17 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/lifecycle/Pausable.sol";
 
 import "./IMarket.sol";
-import "./Property.sol";
+import "./IProperty.sol";
 
 // @title Radical Bodies market.
 contract Market is IMarket, Ownable, Pausable {
-    Property private _token;
+    IProperty private _token;
     uint256 private _taxRate;
     uint256 private _epsilon;
     address private _beneficiary;
 
     constructor(
-        Property token,
+        IProperty token,
         uint256 taxRate,
         uint256 epsilon,
         address beneficiary
