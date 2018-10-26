@@ -36,4 +36,17 @@ contract Property is ERC721Full, Ownable, IERC721WithCreator {
         return tokensByCreator[creator];
     }
 
+    function remove(address creator, uint256 tokenId) internal {
+        uint256[] tokens = tokensByCreator[creator];
+
+        uint i = 0;
+        while (tokens[i] != tokenId) {
+            i++;
+        }
+
+        tokens[i] = tokens[tokens.length - 1];
+        delete tokens[tokens.length - 1];
+
+        tokensByCreator[creators] = tokens;
+    }
 }
