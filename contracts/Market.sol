@@ -92,8 +92,8 @@ contract Market is IMarket, Ownable, Pausable {
     function delist(
         uint256 tokenId
     ) external whenNotPaused {
-        // @todo implement
+        require(_token.creatorOfToken(tokenId) == msg.sender);
 
-        assert(false);
+        _token.burn(tokenId);
     }
 }
