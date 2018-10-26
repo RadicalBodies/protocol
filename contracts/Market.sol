@@ -62,11 +62,14 @@ contract Market is IMarket, Ownable, Pausable {
     function register(
         string metadataURI
     ) external whenNotPaused returns (uint256) {
-        // @todo check seller doesn't have a token yet
+        // Check seller doesn't have a token yet
+        require(_token.tokensByCreator(msg.sender).length == 0);
 
-        // @todo create token for seller
+        // Create token for seller
+        uint256 tokenId = _token.totalSupply();
+        require(_token.mintWithTokenUri(msg.sender, tokenId, metadataURI));
 
-        assert(false);
+        return tokenId;
     }
 
     // @param tokenId
