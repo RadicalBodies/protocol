@@ -1,11 +1,12 @@
 pragma solidity ^0.4.24;
 
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import "openzeppelin-solidity/contracts/lifecycle/Pausable.sol";
 
 import "./IMarket.sol";
 
 // @title Radical Bodies market.
-contract Market is IMarket, Ownable {
+contract Market is IMarket, Ownable, Pausable {
     address private _token;
     uint256 private _taxRate;
     uint256 private _epsilon;
@@ -59,7 +60,7 @@ contract Market is IMarket, Ownable {
     // Need to verify via ERC721WithCreator.tokensByCreator() that the seller doesn't have any token yet.
     function register(
         string metadataURI
-    ) external returns (uint256) {
+    ) external whenNotPaused returns (uint256) {
         // @todo check seller doesn't have a token yet
 
         // @todo create token for seller
@@ -76,7 +77,7 @@ contract Market is IMarket, Ownable {
         uint256 numberOfIntervals,
         uint256 reservePrice,
         string adMetadataURI
-    ) payable external {
+    ) payable external whenNotPaused {
         // @todo implement
 
         assert(false);
@@ -86,7 +87,7 @@ contract Market is IMarket, Ownable {
     // Verifies that msg.sender equals to ERC721WithCreator.creator(tokenId).
     function delist(
         uint256 tokenId
-    ) external {
+    ) external whenNotPaused {
         // @todo implement
 
         assert(false);
