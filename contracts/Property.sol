@@ -7,24 +7,23 @@ import "./IERC721WithCreator.sol";
 contract Property is ERC721Full, Ownable, IERC721WithCreator {
 
     mapping (uint256 => address) private creators;
-    mapping (address => uint256[]) private tokensByCreator;
+    mapping (address => uint256[]) private creatorTokens;
 
     function mintWithTokenUri(address to, uint256 tokenId, string tokenURI) external onlyOwner returns (bool) {
         _mint(to, tokenId);
         _setTokenURI(tokenId, tokenURI);
 
         creators[tokenId] = to;
-        tokensByCreator[to].push(tokenId);
+        creatorTokens[to].push(tokenId);
 
         return true;
     }
 
     function burn(uint256 tokenId) external onlyOwner returns (bool) {
+        remove(creators[tokenId], tokenId);
         delete creators[tokenId];
-
-        // @todo delete from tokensByCreator array
-
-        _burn(owner, tokenId);
+        
+        _burn(ownerOf(tokenId), tokenId);
         return true;
     }
 
@@ -33,11 +32,11 @@ contract Property is ERC721Full, Ownable, IERC721WithCreator {
     }
 
     function tokensByCreator(address creator) external view returns (uint256[]) {
-        return tokensByCreator[creator];
+        return creatorTokens[creator];
     }
 
     function remove(address creator, uint256 tokenId) internal {
-        uint256[] storage tokens = tokensByCreator[creator];
+        uint256[] storage tokens = creatorTokens[creator];
 
         uint i = 0;
         while (tokens[i] != tokenId) {
