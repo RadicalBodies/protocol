@@ -1,5 +1,8 @@
 // @title Radical Bodies market.
 interface IMarket {
+    // The ERC721 token.
+    function token() external view returns (address);
+
     // The tax rate in basis points, 0 to 1000000.
     function taxRate() external view returns (uint256);
 
