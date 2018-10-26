@@ -28,7 +28,7 @@ contract Property is ERC721Full, Ownable, IERC721WithCreator {
         return true;
     }
 
-    function creator(uint256 tokenId) external view returns (address) {
+    function creatorOfToken(uint256 tokenId) external view returns (address) {
         return creators[tokenId];
     }
 
