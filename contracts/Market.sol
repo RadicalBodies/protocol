@@ -9,18 +9,24 @@ import "./IProperty.sol";
 // @title Radical Bodies market.
 contract Market is IMarket, Ownable, Pausable {
     IProperty private _token;
-    uint256 private _taxRate;
+    uint256 private _interval;
+    uint256 private _taxRatePerInterval;
     uint256 private _epsilon;
     address private _beneficiary;
 
+    mapping (uint256 => uint256) private tokenPrice;
+    mapping (uint256 => uint256) private tokenTaxedUntil;
+
     constructor(
         IProperty token,
-        uint256 taxRate,
+        uint256 interval,
+        uint256 taxRatePerInterval,
         uint256 epsilon,
         address beneficiary
     ) {
         _token = token;
-        _taxRate = taxRate;
+        _interval = interval;
+        _taxRatePerInterval = taxRatePerInterval;
         _epsilon = epsilon;
         _beneficiary = beneficiary;
     }
@@ -30,9 +36,14 @@ contract Market is IMarket, Ownable, Pausable {
         return address(_token);
     }
 
+    // The advertisement period in seconds.
+    function interval() external view returns (uint256) {
+        return _interval;
+    }
+
     // The tax rate in basis points, 0 to 1000000.
-    function taxRate() external view returns (uint256) {
-        return _taxRate;
+    function taxRatePerInterval() external view returns (uint256) {
+        return _taxRatePerInterval;
     }
 
     // The minimum bid/increase. (in ETH)
@@ -50,6 +61,16 @@ contract Market is IMarket, Ownable, Pausable {
         // @todo implement
 
         assert(false);
+    }
+
+    // The current price of the given token.
+    function priceOf(uint256 tokenId) external view returns (uint256) {
+        return tokenPrice[tokenId];
+    }
+
+    // The period the token is taxed until.
+    function taxedUntil(uint256 tokenId) external view returns (uint256) {
+        return tokenTaxedUntil[tokenId];
     }
 
     // Creates a new token. ERC721 + ERC721Metadata
@@ -95,5 +116,11 @@ contract Market is IMarket, Ownable, Pausable {
         require(_token.creatorOfToken(tokenId) == msg.sender);
 
         _token.burn(tokenId);
+    }
+
+    function teardown() external onlyOwner {
+        // @todo implement
+
+        assert(false);
     }
 }
