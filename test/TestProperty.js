@@ -24,6 +24,15 @@ contract('Property', function (accounts) {
         await property.burn(0);
 
         assert.equal((await property.tokensByCreator(accounts[0]))[0], 1);
-    })
+    });
+
+    it('should be possible for the owner to move tokens', async () => {
+
+        await property.mintWithTokenURI(accounts[0], 0, "foo");
+        assert.equal(await property.ownerOf(0), accounts[0]);
+
+        await property.move(0, accounts[1]);
+        assert.equal(await property.ownerOf(0), accounts[1]);
+    });
 
 });
