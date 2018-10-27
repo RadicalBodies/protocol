@@ -125,9 +125,12 @@ contract Market is IMarket, Ownable, Pausable {
             uint256 refundInterval = (tokenTaxedUntil[tokenId] - currentPeriodStart) / _interval;
             uint256 refund = (refundInterval * _taxRatePerInterval) / taxPrecision;
 
-            currentOwner.transfer(refund);
+            if (refund > 0) {
+                totalCost += refund;
+                require(msg.value >= totalCost);
 
-            totalCost += refund;
+                currentOwner.transfer(refund);
+            }
         }
 
         // Refund excess payment.
