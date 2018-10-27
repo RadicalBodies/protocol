@@ -135,7 +135,7 @@ contract Market is IMarket, Ownable, Pausable {
             msg.sender.transfer(msg.value - totalCost);
 
         // Transfer token and update properties.
-        _token.transferFrom(currentOwner, msg.sender, tokenId);
+        _token.move(tokenId, msg.sender);
         tokenTaxedUntil[tokenId] = currentPeriodStart + _interval * numberOfIntervals;
         tokenPrice[tokenId] = nextPrice;
     }
