@@ -9,6 +9,7 @@ contract Property is IProperty, ERC721Full("Property", "PROP"), Ownable {
 
     mapping (uint256 => address) private creators;
     mapping (address => uint256[]) private creatorTokens;
+    mapping (uint256 => string) private variableMetadata;
 
     function mintWithTokenURI(address to, uint256 tokenId, string tokenURI) external onlyOwner returns (bool) {
         _mint(to, tokenId);
@@ -34,6 +35,14 @@ contract Property is IProperty, ERC721Full("Property", "PROP"), Ownable {
 
     function tokensByCreator(address creator) external view returns (uint256[]) {
         return creatorTokens[creator];
+    }
+
+    function variableMetadataURI(uint256 tokenId) external view returns (string) {
+        return variableMetadata[tokenId];
+    }
+
+    function replaceVariableMetadataURI(uint256 tokenId, string metadataURI) external onlyOwner {
+        variableMetadata[tokenId] = metadataURI;
     }
 
     function move(uint256 tokenId, address to) external onlyOwner returns (bool) {

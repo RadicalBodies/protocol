@@ -27,7 +27,6 @@ contract('Property', function (accounts) {
     });
 
     it('should be possible for the owner to move tokens', async () => {
-
         await property.mintWithTokenURI(accounts[0], 0, "foo");
         assert.equal(await property.ownerOf(0), accounts[0]);
 
@@ -35,4 +34,16 @@ contract('Property', function (accounts) {
         assert.equal(await property.ownerOf(0), accounts[1]);
     });
 
+    it('should be possible to replace variable metadata', async () => {
+        await property.mintWithTokenURI(accounts[0], 0, "foo");
+        assert.equal(await property.ownerOf(0), accounts[0]);
+
+        assert.equal(await property.variableMetadataURI(0), "");
+
+        await property.replaceVariableMetadataURI(0, "test");
+        assert.equal(await property.variableMetadataURI(0), "test");
+
+        await property.replaceVariableMetadataURI(0, "hello");
+        assert.equal(await property.variableMetadataURI(0), "hello");
+    });
 });
