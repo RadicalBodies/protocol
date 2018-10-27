@@ -36,8 +36,8 @@ contract Market is IMarket, Ownable, Pausable {
     }
 
     // The ERC721 token.
-    function token() external view returns (address) {
-        return address(_token);
+    function token() external view returns (IProperty) {
+        return _token;
     }
 
     // The advertisement period in seconds.

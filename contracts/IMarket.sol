@@ -1,7 +1,9 @@
+import "./IProperty.sol";
+
 // @title Radical Bodies market.
 interface IMarket {
     // The ERC721 token.
-    function token() external view returns (address);
+    function token() external view returns (IProperty);
 
     // The advertisement period in seconds.
     function interval() external view returns (uint256);
