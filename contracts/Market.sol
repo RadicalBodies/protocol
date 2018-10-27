@@ -109,19 +109,18 @@ contract Market is IMarket, Ownable, Pausable {
     ) payable external whenNotPaused {
         // @todo use safemath...
 
-        address currentOwner = _token.ownerOf(tokenId);
-
+        // Calculate costs.
         uint256 currentPeriodStart;
         uint256 nextPrice;
         uint256 tax;
-
         (currentPeriodStart, nextPrice, tax) = calculatePrice(tokenId, numberOfIntervals, reservePrice);
-
         uint256 totalCost = nextPrice + tax;
 
+        // Ensure enough value was provided.
         require(msg.value >= totalCost);
 
-        // Refund excess tax paid.
+        // Refund excess tax paid. (Ignore this in case this is the first purchase.)
+        address currentOwner = _token.ownerOf(tokenId);
         if (currentOwner != _token.creatorOfToken(tokenId)) {
             uint256 refundInterval = (tokenTaxedUntil[tokenId] - currentPeriodStart) / _interval;
             uint256 refund = (refundInterval * _taxRatePerInterval) / taxPrecision;
