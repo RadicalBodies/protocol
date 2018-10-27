@@ -2,6 +2,7 @@ pragma solidity ^0.4.24;
 
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/lifecycle/Pausable.sol";
+import "openzeppelin-solidity/contracts/math/Math.sol";
 
 import "./IMarket.sol";
 import "./IProperty.sol";
@@ -168,12 +169,33 @@ contract Market is IMarket, Ownable, Pausable {
         // Minimum price (current + minimum bid).
         price = tokenPrice[tokenId] + _epsilon;
 
+        price = decayPrice(tokenId, periodStart, price);
+
         // Adjust price with reservePrice.
         require(reservePrice >= price);
         price = reservePrice;
 
         // Calculated tax.
         tax = ((price * _taxRatePerInterval) / taxPrecision) * numberOfIntervals;
+    }
+
+    function decayPrice(
+        uint256 tokenId,
+        uint256 periodStart,
+        uint256 price
+    ) view internal returns (uint256) {
+        // Never taxed before, abort.
+        if (tokenTaxedUntil[tokenId] == 0)
+            return price;
+
+        // Number of intervals elapsed after tax was prepaid to.
+        uint256 expiredIntervals = Math.max(periodStart - tokenTaxedUntil[tokenId], 0) / _interval;
+
+        // Decay if there were expired intervals.
+        if (expiredIntervals > 0)
+            price = price / (expiredIntervals ^ 2);
+
+        return price;
     }
 
     // Removes seller's token.
