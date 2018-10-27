@@ -109,30 +109,28 @@ contract Market is IMarket, Ownable, Pausable {
     ) payable external whenNotPaused {
         // @todo use safemath...
 
-        address currentOwner = _token.ownerOf(tokenId);
-
-        // Timestamp of the current period starrt.
-        uint256 currentPeriodStart = (block.timestamp / _interval) * _interval;
-
-        uint256 nextPrice = tokenPrice[tokenId] + _epsilon;
-
-        // Adjust price with reservePrice.
-        require(reservePrice >= nextPrice);
-        nextPrice = reservePrice;
-
-        uint256 tax = nextPrice * _taxRatePerInterval / taxPrecision * numberOfIntervals;
+        // Calculate costs.
+        uint256 currentPeriodStart;
+        uint256 nextPrice;
+        uint256 tax;
+        (currentPeriodStart, nextPrice, tax) = calculatePrice(tokenId, numberOfIntervals, reservePrice);
         uint256 totalCost = nextPrice + tax;
 
+        // Ensure enough value was provided.
         require(msg.value >= totalCost);
 
-        // Refund excess tax paid.
+        // Refund excess tax paid. (Ignore this in case this is the first purchase.)
+        address currentOwner = _token.ownerOf(tokenId);
         if (currentOwner != _token.creatorOfToken(tokenId)) {
             uint256 refundInterval = (tokenTaxedUntil[tokenId] - currentPeriodStart) / _interval;
-            uint256 refund = refundInterval * _taxRatePerInterval / taxPrecision;
+            uint256 refund = (refundInterval * _taxRatePerInterval) / taxPrecision;
 
-            currentOwner.transfer(refund);
+            if (refund > 0) {
+                totalCost += refund;
+                require(msg.value >= totalCost);
 
-            totalCost += refund;
+                currentOwner.transfer(refund);
+            }
         }
 
         // Refund excess payment.
@@ -142,8 +140,33 @@ contract Market is IMarket, Ownable, Pausable {
         // Transfer token and update properties.
         _token.move(tokenId, msg.sender);
         _token.replaceVariableMetadataURI(tokenId, adMetadataURI);
-        tokenTaxedUntil[tokenId] = currentPeriodStart + _interval * numberOfIntervals;
+        tokenTaxedUntil[tokenId] = currentPeriodStart + (_interval * numberOfIntervals);
         tokenPrice[tokenId] = nextPrice;
+    }
+
+    // Returns the calculated price for the token.
+    // If the reservePrice is less than the minimum price, this fails (reverts).
+    function calculatePrice(
+      uint256 tokenId,
+      uint256 numberOfIntervals,
+      uint256 reservePrice
+    ) view public returns (
+      uint256 periodStart,
+      uint256 price,
+      uint256 tax
+    ) {
+        // Timestamp of the current period start.
+        periodStart = (block.timestamp / _interval) * _interval;
+
+        // Minimum price (current + minimum bid).
+        price = tokenPrice[tokenId] + _epsilon;
+
+        // Adjust price with reservePrice.
+        require(reservePrice >= price);
+        price = reservePrice;
+
+        // Calculated tax.
+        tax = ((price * _taxRatePerInterval) / taxPrecision) * numberOfIntervals;
     }
 
     // Removes seller's token.
