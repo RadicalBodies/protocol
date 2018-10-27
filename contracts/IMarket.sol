@@ -24,6 +24,9 @@ interface IMarket {
     // The period the token is taxed until.
     function taxedUntil(uint256 tokenId) external view returns (uint256);
 
+    // Returns the starting timestamp of the current period.
+    function currentPeriodStart() external view returns (uint256);
+
     // Creates a new token. ERC721 + ERC721Metadata
     // @param metadataURI IPFS URL for all the user details
     // @returns the tokenId

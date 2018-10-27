@@ -78,6 +78,11 @@ contract Market is IMarket, Ownable, Pausable {
         return tokenTaxedUntil[tokenId];
     }
 
+    // Returns the starting timestamp of the current period.
+    function currentPeriodStart() public view returns (uint256) {
+        return (block.timestamp / _interval) * _interval;
+    }
+
     // Creates a new token. ERC721 + ERC721Metadata
     // @param metadataURI IPFS URL for all the user details
     // @returns the tokenId
@@ -164,7 +169,7 @@ contract Market is IMarket, Ownable, Pausable {
         require(_token.creatorOfToken(tokenId) != address(0));
 
         // Timestamp of the current period start.
-        periodStart = (block.timestamp / _interval) * _interval;
+        periodStart = currentPeriodStart();
 
         // Minimum price (current + minimum bid).
         price = tokenPrice[tokenId] + _epsilon;
