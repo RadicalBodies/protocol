@@ -124,7 +124,7 @@ contract Market is IMarket, Ownable, Pausable {
         // Refund excess tax paid.
         if (currentOwner != _token.creatorOfToken(tokenId)) {
             uint256 refundInterval = (tokenTaxedUntil[tokenId] - currentPeriodStart) / _interval;
-            uint256 refund = refundInterval * _taxRatePerInterval / taxPrecision;
+            uint256 refund = (refundInterval * _taxRatePerInterval) / taxPrecision;
 
             currentOwner.transfer(refund);
 
@@ -138,7 +138,7 @@ contract Market is IMarket, Ownable, Pausable {
         // Transfer token and update properties.
         _token.move(tokenId, msg.sender);
         _token.replaceVariableMetadataURI(tokenId, adMetadataURI);
-        tokenTaxedUntil[tokenId] = currentPeriodStart + _interval * numberOfIntervals;
+        tokenTaxedUntil[tokenId] = currentPeriodStart + (_interval * numberOfIntervals);
         tokenPrice[tokenId] = nextPrice;
     }
 
@@ -164,7 +164,7 @@ contract Market is IMarket, Ownable, Pausable {
         price = reservePrice;
 
         // Calculated tax.
-        tax = price * _taxRatePerInterval / taxPrecision * numberOfIntervals;
+        tax = ((price * _taxRatePerInterval) / taxPrecision) * numberOfIntervals;
     }
 
     // Removes seller's token.
