@@ -115,6 +115,11 @@ contract Market is IMarket, Ownable, Pausable {
         uint256 currentPeriodStart = (block.timestamp / _interval) * _interval;
 
         uint256 nextPrice = tokenPrice[tokenId] + _epsilon;
+
+        // Adjust price with reservePrice.
+        require(reservePrice >= nextPrice);
+        nextPrice = reservePrice;
+
         uint256 tax = nextPrice * _taxRatePerInterval / taxPrecision * numberOfIntervals;
         uint256 totalCost = nextPrice + tax;
 
