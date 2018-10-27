@@ -13,13 +13,13 @@
     "truffle.js"
   ],
   "devDependencies": {
-    "solidity-coverage": "^0.3.5",
+    "openzeppelin-solidity": "^2.0.0",
+    "solidity-coverage": "^0.5.11",
     "solium": "^1.1.8",
     "truffle": "^4.1.14",
     "truffle-config": "^1.0.6",
     "truffle-expect": "0.0.3",
-    "truffle-hdwallet-provider": "0.0.3",
-    "openzeppelin-solidity": "^2.0.0"
+    "truffle-hdwallet-provider": "0.0.3"
   },
   "keywords": [
     "solidity",
