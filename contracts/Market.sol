@@ -111,16 +111,12 @@ contract Market is IMarket, Ownable, Pausable {
 
         address currentOwner = _token.ownerOf(tokenId);
 
-        // Timestamp of the current period starrt.
-        uint256 currentPeriodStart = (block.timestamp / _interval) * _interval;
+        uint256 currentPeriodStart;
+        uint256 nextPrice;
+        uint256 tax;
 
-        uint256 nextPrice = tokenPrice[tokenId] + _epsilon;
+        (currentPeriodStart, nextPrice, tax) = calculatePrice(tokenId, numberOfIntervals, reservePrice);
 
-        // Adjust price with reservePrice.
-        require(reservePrice >= nextPrice);
-        nextPrice = reservePrice;
-
-        uint256 tax = nextPrice * _taxRatePerInterval / taxPrecision * numberOfIntervals;
         uint256 totalCost = nextPrice + tax;
 
         require(msg.value >= totalCost);
@@ -144,6 +140,31 @@ contract Market is IMarket, Ownable, Pausable {
         _token.replaceVariableMetadataURI(tokenId, adMetadataURI);
         tokenTaxedUntil[tokenId] = currentPeriodStart + _interval * numberOfIntervals;
         tokenPrice[tokenId] = nextPrice;
+    }
+
+    // Returns the calculated price for the token.
+    // If the reservePrice is less than the minimum price, this fails (reverts).
+    function calculatePrice(
+      uint256 tokenId,
+      uint256 numberOfIntervals,
+      uint256 reservePrice
+    ) view public returns (
+      uint256 periodStart,
+      uint256 price,
+      uint256 tax
+    ) {
+        // Timestamp of the current period start.
+        periodStart = (block.timestamp / _interval) * _interval;
+
+        // Minimum price (current + minimum bid).
+        price = tokenPrice[tokenId] + _epsilon;
+
+        // Adjust price with reservePrice.
+        require(reservePrice >= price);
+        price = reservePrice;
+
+        // Calculated tax.
+        tax = price * _taxRatePerInterval / taxPrecision * numberOfIntervals;
     }
 
     // Removes seller's token.
