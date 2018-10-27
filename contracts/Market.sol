@@ -8,6 +8,8 @@ import "./IProperty.sol";
 
 // @title Radical Bodies market.
 contract Market is IMarket, Ownable, Pausable {
+    uint256 private constant taxPrecision = 1000000;
+
     IProperty private _token;
     uint256 private _interval;
     uint256 private _taxRatePerInterval;
@@ -24,6 +26,8 @@ contract Market is IMarket, Ownable, Pausable {
         uint256 epsilon,
         address beneficiary
     ) {
+        require(taxRatePerInterval <= taxPrecision);
+
         _token = token;
         _interval = interval;
         _taxRatePerInterval = taxRatePerInterval;
@@ -103,13 +107,15 @@ contract Market is IMarket, Ownable, Pausable {
         uint256 reservePrice,
         string adMetadataURI
     ) payable external whenNotPaused {
+        // @todo use safemath...
+
         address currentOwner = _token.ownerOf(tokenId);
 
         // Timestamp of the current period starrt.
         uint256 currentPeriodStart = (block.timestamp / _interval) * _interval;
 
         uint256 nextPrice = tokenPrice[tokenId] + _epsilon;
-        uint256 tax = nextPrice * _taxRatePerInterval * numberOfIntervals;
+        uint256 tax = nextPrice * _taxRatePerInterval / taxPrecision * numberOfIntervals;
         uint256 totalCost = nextPrice + tax;
 
         require(msg.value >= totalCost);
@@ -117,7 +123,7 @@ contract Market is IMarket, Ownable, Pausable {
         // Refund excess tax paid.
         if (currentOwner != _token.creatorOfToken(tokenId)) {
             uint256 refundInterval = (tokenTaxedUntil[tokenId] - currentPeriodStart) / _interval;
-            uint256 refund = refundInterval * _taxRatePerInterval;
+            uint256 refund = refundInterval * _taxRatePerInterval / taxPrecision;
 
             currentOwner.transfer(refund);
 
