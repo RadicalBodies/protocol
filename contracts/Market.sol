@@ -107,6 +107,10 @@ contract Market is IMarket, Ownable, Pausable {
         uint256 reservePrice,
         string adMetadataURI
     ) payable external whenNotPaused {
+        // Ensure token exists.
+        // @todo this is also done by calculatePrice - can we omit it here?
+        require(_token.creatorOfToken(tokenId) != address(0));
+
         // @todo use safemath...
 
         // Calculate costs.
@@ -155,6 +159,9 @@ contract Market is IMarket, Ownable, Pausable {
       uint256 price,
       uint256 tax
     ) {
+        // Ensure token exists.
+        require(_token.creatorOfToken(tokenId) != address(0));
+
         // Timestamp of the current period start.
         periodStart = (block.timestamp / _interval) * _interval;
 
