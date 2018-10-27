@@ -103,9 +103,38 @@ contract Market is IMarket, Ownable, Pausable {
         uint256 reservePrice,
         string adMetadataURI
     ) payable external whenNotPaused {
-        // @todo implement
+        address currentOwner = _token.ownerOf(tokenId);
 
-        assert(false);
+        // Timestamp of the current period starrt.
+        uint256 currentPeriodStart = (block.timestamp / _interval) * _interval;
+
+        uint256 currentPrice = tokenPrice[tokenId];
+        uint256 nextPrice = currentPrice + _epsilon;
+
+        uint256 tax = nextPrice * _taxRatePerInterval * numberOfIntervals;
+
+        uint256 totalCost = nextPrice + tax;
+
+        require(msg.value >= totalCost);
+
+        // Refund excess tax paid.
+        if (currentOwner != _token.creatorOfToken(tokenId)) {
+            uint256 refundInterval = (tokenTaxedUntil[tokenId] - currentPeriodStart) / _interval;
+            uint256 refund = refundInterval * _taxRatePerInterval;
+
+            currentOwner.transfer(refund);
+
+            totalCost += refund;
+        }
+
+        // Refund excess payment.
+        if (msg.value > totalCost)
+            msg.sender.transfer(msg.value - totalCost);
+
+        // Transfer token and update properties.
+        _token.transferFrom(currentOwner, msg.sender, tokenId);
+        tokenTaxedUntil[tokenId] = currentPeriodStart + _interval * numberOfIntervals;
+        tokenPrice[tokenId] = nextPrice;
     }
 
     // Removes seller's token.
