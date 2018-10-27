@@ -36,6 +36,13 @@ contract Property is IProperty, ERC721Full("Property", "PROP"), Ownable {
         return creatorTokens[creator];
     }
 
+    function move(uint256 tokenId, address to) external onlyOwner returns (bool) {
+        address from = ownerOf(tokenId);
+        _removeTokenFrom(from, tokenId);
+        _addTokenTo(to, tokenId);
+        return true;
+    }
+
     function remove(address creator, uint256 tokenId) internal {
         uint256[] storage tokens = creatorTokens[creator];
 
