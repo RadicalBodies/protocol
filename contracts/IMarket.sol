@@ -63,6 +63,18 @@ interface IMarket {
         string adMetadataURI
     ) payable external;
 
+    // Returns the calculated price for the token.
+    // If the reservePrice is less than the minimum price, this fails (reverts).
+    function calculatePrice(
+      uint256 tokenId,
+      uint256 numberOfIntervals,
+      uint256 reservePrice
+    ) view external returns (
+      uint256 periodStart,
+      uint256 price,
+      uint256 tax
+    );
+
     // Removes seller's token.
     // Verifies that msg.sender equals to ERC721WithCreator.creator(tokenId).
     function delist(
