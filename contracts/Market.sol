@@ -70,9 +70,7 @@ contract Market is IMarket, Ownable, Pausable {
 
     // The beneficiary can retrieve already released funds via this.
     function withdrawAvailableFunds() external payable {
-        // @todo implement
-
-        assert(false);
+        _beneficiary.transfer(this.balance);
     }
 
     // The current price of the given token.
