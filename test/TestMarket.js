@@ -1,4 +1,4 @@
-const Property = artifacts.require("Market.sol");
+const Property = artifacts.require("Property.sol");
 const Market = artifacts.require("Market.sol");
 
 contract('Market', function (accounts) {
@@ -8,10 +8,11 @@ contract('Market', function (accounts) {
     beforeEach(async () => {
         property = await Property.new();
         market = await Market.new(property.address, "3600", "114155", "10000000000000000", "0x0");
+        property.transferOwnership(market.address);
     });
 
     it('should register a seller', async () => {
-        await market.register(accounts[0], "testURI");
+        await market.register("testURI");
 
         const tokens = await property.tokensByCreator(accounts[0]);
 
