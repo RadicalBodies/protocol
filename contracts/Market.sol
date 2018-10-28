@@ -140,7 +140,7 @@ contract Market is IMarket, Ownable, Pausable {
         address currentOwner = _token.ownerOf(tokenId);
         if (currentOwner != _token.creatorOfToken(tokenId)) {
             uint256 refundInterval = (tokenTaxedUntil[tokenId] - currentPeriodStart) / _interval;
-            uint256 refund = (refundInterval * _taxRatePerInterval) / _taxPrecision;
+            uint256 refund = ((refundInterval * _taxRatePerInterval) / 100) / _taxPrecision;
 
             if (refund > 0) {
                 totalCost += refund;
@@ -188,7 +188,7 @@ contract Market is IMarket, Ownable, Pausable {
         price = reservePrice;
 
         // Calculated tax.
-        tax = ((price * _taxRatePerInterval) / _taxPrecision) * numberOfIntervals;
+        tax = (((price * _taxRatePerInterval) / 100) / _taxPrecision) * numberOfIntervals;
     }
 
     function decayPrice(
