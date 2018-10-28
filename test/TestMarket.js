@@ -67,4 +67,21 @@ contract('Market', function (accounts) {
         // 0.0000570775 ETH
         assert.equal(tax.toString(), "57077500000000");
     });
+
+    it('should work for buy', async () => {
+        await market.register("testURI");
+
+        // 0.01 ETH
+        const reservePrice = "10000000000000000";
+
+        // reservePrice + tax: 0.0100114155 ETH
+        const totalCost = "10011415500000000"
+
+        await market.buy(0, 1, reservePrice, "adURI", { value: totalCost });
+
+        // Price has bumped now.
+        assert.equal((await market.priceOf(0)).toString(), reservePrice);
+        // The property is owned.
+        assert.equal(await property.variableMetadataURI(0), "adURI");
+    });
 });
