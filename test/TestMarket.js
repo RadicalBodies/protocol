@@ -11,6 +11,13 @@ contract('Market', function (accounts) {
         property.transferOwnership(market.address);
     });
 
+    it('basic market properties be correct', async () => {
+        assert.equal((await market.interval()).toString(), "3600");
+        assert.equal((await market.taxRatePerInterval()).toString(), "114155");
+        assert.equal((await market.taxPrecision()).toString(), "1000000");
+        assert.equal((await market.epsilon()).toString(), "10000000000000000");
+    });
+
     it('should register a seller', async () => {
         await market.register("testURI");
 
