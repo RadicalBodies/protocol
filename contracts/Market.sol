@@ -9,6 +9,8 @@ import "./IProperty.sol";
 
 // @title Radical Bodies market.
 contract Market is IMarket, Ownable, Pausable {
+    uint256 private constant beneficiaryLimit = 42 ether;
+
     // 6 digits precision
     uint256 private constant _taxPrecision = 1000000;
 
@@ -20,6 +22,8 @@ contract Market is IMarket, Ownable, Pausable {
 
     mapping (uint256 => uint256) private tokenPrice;
     mapping (uint256 => uint256) private tokenTaxedUntil;
+
+    uint256 private totalWithdrawn = 0;
 
     constructor(
         IProperty token,
@@ -70,7 +74,13 @@ contract Market is IMarket, Ownable, Pausable {
 
     // The beneficiary can retrieve already released funds via this.
     function withdrawAvailableFunds() external payable {
-        _beneficiary.transfer(this.balance);
+        if (totalWithdrawn >= beneficiaryLimit)
+            owner().transfer(this.balance);
+        else {
+            uint256 amount = Math.min(this.balance, beneficiaryLimit);
+            totalWithdrawn += amount;
+            _beneficiary.transfer(amount);
+        }
     }
 
     // The current price of the given token.
