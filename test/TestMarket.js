@@ -4,10 +4,11 @@ const Market = artifacts.require("Market.sol");
 contract('Market', function (accounts) {
     let property;
     let market;
+    const beneficiary = "0x0000000000000000000000000000000000001234"
 
     beforeEach(async () => {
         property = await Property.new();
-        market = await Market.new(property.address, "3600", "114155", "10000000000000000", "0x0");
+        market = await Market.new(property.address, "3600", "114155", "10000000000000000", beneficiary);
         property.transferOwnership(market.address);
     });
 
@@ -83,5 +84,29 @@ contract('Market', function (accounts) {
         assert.equal((await market.priceOf(0)).toString(), reservePrice);
         // The property is owned.
         assert.equal(await property.variableMetadataURI(0), "adURI");
+    });
+
+    it('should work for withdrawAvailableFunds', async () => {
+        await market.register("testURI");
+
+        // 0.01 ETH
+        const reservePrice = "10000000000000000";
+
+        // reservePrice + tax: 0.0100114155 ETH
+        const totalCost = "10011415500000000"
+
+        await market.buy(0, 1, reservePrice, "adURI", { value: totalCost });
+
+        // Price has bumped now.
+        assert.equal((await market.priceOf(0)).toString(), reservePrice);
+        // The property is owned.
+        assert.equal(await property.variableMetadataURI(0), "adURI");
+
+        const startBalance = web3.eth.getBalance(beneficiary);
+        await market.withdrawAvailableFunds();
+        const endBalance = web3.eth.getBalance(beneficiary);
+
+        assert.equal(web3.eth.getBalance(market.address).toString(), "0");
+        assert.equal(endBalance.sub(startBalance).toString(), "10011415500000000");
     });
 });
