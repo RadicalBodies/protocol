@@ -7,7 +7,7 @@ module.exports = function (deployer, network) {
     const property = await Property.deployed();
 
     // interval = 3600 (1 hour)
-    // taxRatePerInterval = 114155 (10% / year)
+    // taxRatePerInterval = 0.114155 (10% / year)
     // epsilon = 10000000000000000 (0.01 eth)
     // beneficiary = 0x0
     await deployer.deploy(Market, property.address, "3600", "114155", "10000000000000000", "0x0");

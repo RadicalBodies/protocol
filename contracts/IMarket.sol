@@ -9,6 +9,10 @@ interface IMarket {
     // The tax rate in basis points, 0 to 1000000.
     function taxRatePerInterval() external view returns (uint256);
 
+    // The precision of the calculation. To get a floating point number,
+    // divide taxRatePerInterval with taxPrecision.
+    function taxPrecision() external pure returns (uint256);
+
     // The minimum bid/increase. (in ETH)
     function epsilon() external view returns (uint256);
 
