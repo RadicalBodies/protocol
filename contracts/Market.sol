@@ -9,7 +9,8 @@ import "./IProperty.sol";
 
 // @title Radical Bodies market.
 contract Market is IMarket, Ownable, Pausable {
-    uint256 private constant taxPrecision = 1000000;
+    // 6 digits precision
+    uint256 private constant _taxPrecision = 1000000;
 
     IProperty private _token;
     uint256 private _interval;
@@ -27,7 +28,7 @@ contract Market is IMarket, Ownable, Pausable {
         uint256 epsilon,
         address beneficiary
     ) {
-        require(taxRatePerInterval <= taxPrecision);
+        require(taxRatePerInterval <= _taxPrecision);
 
         _token = token;
         _interval = interval;
@@ -49,6 +50,12 @@ contract Market is IMarket, Ownable, Pausable {
     // The tax rate in basis points, 0 to 1000000.
     function taxRatePerInterval() external view returns (uint256) {
         return _taxRatePerInterval;
+    }
+
+    // The precision of the calculation. To get a floating point number,
+    // divide taxRatePerInterval with taxPrecision.
+    function taxPrecision() external pure returns (uint256) {
+        return _taxPrecision;
     }
 
     // The minimum bid/increase. (in ETH)
@@ -133,7 +140,7 @@ contract Market is IMarket, Ownable, Pausable {
         address currentOwner = _token.ownerOf(tokenId);
         if (currentOwner != _token.creatorOfToken(tokenId)) {
             uint256 refundInterval = (tokenTaxedUntil[tokenId] - currentPeriodStart) / _interval;
-            uint256 refund = (refundInterval * _taxRatePerInterval) / taxPrecision;
+            uint256 refund = (refundInterval * _taxRatePerInterval) / _taxPrecision;
 
             if (refund > 0) {
                 totalCost += refund;
@@ -181,7 +188,7 @@ contract Market is IMarket, Ownable, Pausable {
         price = reservePrice;
 
         // Calculated tax.
-        tax = ((price * _taxRatePerInterval) / taxPrecision) * numberOfIntervals;
+        tax = ((price * _taxRatePerInterval) / _taxPrecision) * numberOfIntervals;
     }
 
     function decayPrice(
