@@ -30,7 +30,7 @@ contract('Market', function (accounts) {
         assert.equal((await market.priceOf(tokens[0])).toString(), "0");
     });
 
-    it('calculatePrice should work', async () => {
+    it('calculatePrice should work for 1 period', async () => {
         await market.register("testURI");
 
         const epsilon = await market.epsilon();
@@ -47,5 +47,24 @@ contract('Market', function (accounts) {
         assert.equal(price.toString(), "10000000000000000");
         // 0.0000114155 ETH
         assert.equal(tax.toString(), "11415500000000");
+    });
+
+    it('calculatePrice should work for multiple periods', async () => {
+        await market.register("testURI");
+
+        const epsilon = await market.epsilon();
+        const lastPrice = await market.priceOf(0);
+        const reservePrice = lastPrice.add(epsilon);
+        // 0.01 ETH
+        assert.equal(reservePrice.toString(), "10000000000000000");
+
+        const ret = await market.calculatePrice(0, 5, reservePrice);
+        const periodStart = ret[0];
+        const price = ret[1];
+        const tax = ret[2];
+        // 0.01 ETH
+        assert.equal(price.toString(), "10000000000000000");
+        // 0.0000570775 ETH
+        assert.equal(tax.toString(), "57077500000000");
     });
 });
